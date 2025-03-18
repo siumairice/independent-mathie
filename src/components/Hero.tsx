@@ -104,7 +104,8 @@ const HeroButton = styled(Button)`
     border: 2px solid ${({ theme }) => theme.colors.white};
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: ${({ theme }) => theme.colors.accent};
+      border-color: ${({ theme }) => theme.colors.accent};
     }
   }
 `;

@@ -79,7 +79,7 @@ const RatingStars = styled.div`
 const AuthorInfo = styled.div`
   display: flex;
   align-items: center;
-  border-top: 1px solid ${({ theme }) => `rgba(0,0,0,0.05)`};
+  border-top: 1px solid rgba(0,0,0,0.05);
   padding-top: ${({ theme }) => theme.spacing.md};
 `;
 

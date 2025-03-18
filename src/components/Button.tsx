@@ -45,7 +45,7 @@ export const Button = styled.button<ButtonProps>`
           color: ${theme.colors.white};
 
           &:hover {
-            background: ${theme.colors.secondaryDark};
+            background: ${theme.colors.accent};
             transform: translateY(-2px);
           }
 
@@ -60,7 +60,7 @@ export const Button = styled.button<ButtonProps>`
           color: ${theme.colors.primary};
 
           &:hover {
-            background: ${theme.colors.primary};
+            background: ${theme.colors.accent};
             color: ${theme.colors.white};
             transform: translateY(-2px);
           }
@@ -75,7 +75,7 @@ export const Button = styled.button<ButtonProps>`
           color: ${theme.colors.white};
 
           &:hover {
-            background: ${theme.colors.primaryDark};
+            background: ${theme.colors.accent};
             transform: translateY(-2px);
           }
 
