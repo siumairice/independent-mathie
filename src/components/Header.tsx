@@ -2,22 +2,23 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaBars, FaTimes, FaGraduationCap } from 'react-icons/fa';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const HeaderWrapper = styled(motion.header)<{ $scrolled: boolean }>`
+const HeaderWrapper = styled(motion.header)<{ $scrolled: boolean; $isHomePage: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: ${({ theme }) => theme.zIndex.header};
-  background: ${({ $scrolled, theme }) => 
-    $scrolled ? theme.colors.primaryDark : 'transparent'};
+  background: ${({ $scrolled, $isHomePage, theme }) => 
+    $scrolled || !$isHomePage ? theme.colors.primaryDark : 'transparent'};
   padding: ${({ $scrolled, theme }) => 
     $scrolled ? theme.spacing.sm : theme.spacing.md} 0;
   transition: all ${({ theme }) => theme.transitions.medium};
-  box-shadow: ${({ $scrolled, theme }) => 
-    $scrolled ? theme.shadows.medium : 'none'};
-  backdrop-filter: ${({ $scrolled }) => 
-    $scrolled ? 'blur(10px)' : 'none'};
+  box-shadow: ${({ $scrolled, $isHomePage, theme }) => 
+    $scrolled || !$isHomePage ? theme.shadows.medium : 'none'};
+  backdrop-filter: ${({ $scrolled, $isHomePage }) => 
+    $scrolled || !$isHomePage ? 'blur(10px)' : 'none'};
 `;
 
 const HeaderContainer = styled.div`
@@ -50,6 +51,10 @@ const LogoIcon = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const LogoText = styled.span`
+  // Add any necessary styles for the LogoText component
 `;
 
 const Nav = styled.nav<{ $isOpen: boolean }>`
@@ -93,7 +98,60 @@ const NavItem = styled.li`
   }
 `;
 
-const NavLink = styled.a<{ $isActive?: boolean }>`
+const StyledLink = styled.a<{ $isActive?: boolean }>`
+  color: ${({ theme, $isActive }) => 
+    $isActive ? theme.colors.accent : theme.colors.white};
+  text-decoration: none;
+  font-weight: 500;
+  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  border-radius: ${({ theme }) => theme.borderRadius.small};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  position: relative;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: ${({ $isActive }) => ($isActive ? '80%' : '0')};
+    height: 2px;
+    background-color: ${({ theme }) => theme.colors.accent};
+    transform: translateX(-50%);
+    transition: width ${({ theme }) => theme.transitions.fast};
+  }
+  
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+    
+    &::after {
+      width: 80%;
+    }
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    display: block;
+    padding: ${({ theme }) => theme.spacing.sm};
+    width: 100%;
+    
+    &::after {
+      bottom: auto;
+      top: 50%;
+      left: 0;
+      width: 3px;
+      height: ${({ $isActive }) => ($isActive ? '70%' : '0')};
+      transform: translateY(-50%);
+      transition: height ${({ theme }) => theme.transitions.fast};
+    }
+    
+    &:hover::after {
+      width: 3px;
+      height: 70%;
+    }
+  }
+`;
+
+const RouterLink = styled(Link)<{ $isActive?: boolean }>`
   color: ${({ theme, $isActive }) => 
     $isActive ? theme.colors.accent : theme.colors.white};
   text-decoration: none;
@@ -184,53 +242,121 @@ const Overlay = styled(motion.div)<{ $isOpen: boolean }>`
 `;
 
 const navItems = [
-  { href: '#home', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#blog', label: 'Blog' },
-  { href: '#testimonials', label: 'Testimonials' },
-  { href: '#contact', label: 'Contact' },
+  { href: '/#home', label: 'Home', isHashLink: true },
+  { href: '/#about', label: 'About', isHashLink: true },
+  { href: '/blog', label: 'Blog', isHashLink: false },
+  { href: '/#testimonials', label: 'Testimonials', isHashLink: true },
+  { href: '/#contact', label: 'Contact', isHashLink: true },
+  { href: '/#subscribe', label: 'Subscribe', isHashLink: true },
 ];
 
 export const Header = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine if we're on the home page
+  const isHomePage = location.pathname === '/' || location.pathname === '';
+
+  // Scroll to top when path changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    // When redirected to home with hash, scroll to that section
+    if (isHomePage && location.hash) {
+      const sectionId = location.hash.substring(1); // Remove # from the hash
+      const section = document.getElementById(sectionId);
+      if (section) {
+        setTimeout(() => {
+          const rect = section.getBoundingClientRect();
+          const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          window.scrollTo({
+            top: scrollTop + rect.top - 80,
+            behavior: 'smooth'
+          });
+        }, 100); // Short delay to ensure DOM is ready
+      }
+    }
+  }, [location, isHomePage]);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 50);
       
-      // Update active section based on scroll position
-      const sections = navItems.map(item => item.href.substring(1));
-      
-      for (const section of sections.reverse()) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 150) {
-            setActiveSection(section);
-            break;
+      // Don't update activeSection on blog pages
+      if (isHomePage) {
+        // Get all sections and determine which one is in view
+        const sections = document.querySelectorAll('section[id]');
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= 150 && rect.bottom >= 150) {
+            setActiveSection(section.getAttribute('id') || '');
           }
-        }
+        });
       }
     };
-
+    
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  // Set Blog as active section when on blog pages
+  useEffect(() => {
+    if (location.pathname.startsWith('/blog')) {
+      setActiveSection('blog');
+    } else if (isHomePage) {
+      // Reset to detecting sections when back on home page
+      handleScroll();
+    }
+  }, [location.pathname, isHomePage]);
 
   const closeMenu = () => {
     setIsOpen(false);
   };
-  
+
+  const handleScroll = () => {
+    // Only run section detection on homepage
+    if (!isHomePage) return;
+    
+    const sections = document.querySelectorAll('section[id]');
+    sections.forEach((section) => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top <= 150 && rect.bottom >= 150) {
+        setActiveSection(section.getAttribute('id') || '');
+      }
+    });
+  };
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+    closeMenu();
+    
+    // Extract the section ID from the href
+    const sectionId = href.split('#')[1];
+    
+    // If we're not on the home page, navigate to home with hash
+    if (!isHomePage) {
+      navigate(`/#${sectionId}`);
+      return;
+    }
+    
+    // We're on home page, just scroll to the section
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const rect = section.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      window.scrollTo({
+        top: scrollTop + rect.top - 80, // Adjust for header height
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const logoVariants = {
     initial: { opacity: 0, x: -20 },
     animate: { 
@@ -242,14 +368,22 @@ export const Header = () => {
 
   return (
     <HeaderWrapper 
-      $scrolled={scrolled}
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      $scrolled={isScrolled}
+      $isHomePage={isHomePage}
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: 'spring', stiffness: 120, damping: 20 }}
     >
       <HeaderContainer>
         <Logo 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          as={Link}
+          to="/"
+          onClick={() => {
+            closeMenu();
+            if (location.pathname === '/') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
           variants={logoVariants}
           initial="initial"
           animate="animate"
@@ -257,26 +391,47 @@ export const Header = () => {
           <LogoIcon>
             <FaGraduationCap />
           </LogoIcon>
-          <span>Independent Mathie</span>
+          <LogoText>Independent Mathie</LogoText>
         </Logo>
         
-        <MobileMenuButton onClick={toggleMenu} aria-label={isOpen ? "Close menu" : "Open menu"}>
+        <MobileMenuButton onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <FaTimes /> : <FaBars />}
         </MobileMenuButton>
         
         <Nav $isOpen={isOpen}>
           <NavList>
-            {navItems.map((item) => (
-              <NavItem key={item.href}>
-                <NavLink 
-                  href={item.href} 
-                  onClick={closeMenu}
-                  $isActive={activeSection === item.href.substring(1)}
-                >
-                  {item.label}
-                </NavLink>
-              </NavItem>
-            ))}
+            {navItems.map((item, index) => {
+              // Check if this nav item should be active based on current path
+              let isActive = false;
+              if (item.isHashLink) {
+                isActive = activeSection === item.href.split('#')[1];
+              } else {
+                // For non-hash links like /blog, check if current path starts with the item href
+                isActive = location.pathname.startsWith(item.href);
+              }
+              
+              return (
+                <NavItem key={index}>
+                  {item.isHashLink ? (
+                    <StyledLink 
+                      href={item.href} 
+                      $isActive={isActive}
+                      onClick={(e) => handleNavClick(e, item.href)}
+                    >
+                      {item.label}
+                    </StyledLink>
+                  ) : (
+                    <RouterLink 
+                      to={item.href} 
+                      $isActive={isActive}
+                      onClick={closeMenu}
+                    >
+                      {item.label}
+                    </RouterLink>
+                  )}
+                </NavItem>
+              );
+            })}
           </NavList>
         </Nav>
         

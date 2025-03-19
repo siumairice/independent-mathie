@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Section } from './Section';
 import { FaCalendarAlt, FaUser, FaTag, FaClock } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const BlogHeader = styled.div`
   text-align: center;
@@ -207,7 +208,7 @@ const MetaItem = styled.div`
   }
 `;
 
-const ReadMoreButton = styled.a`
+const ReadMoreButton = styled(Link)`
   display: inline-block;
   margin-top: auto;
   color: ${({ theme }) => theme.colors.accent};
@@ -233,6 +234,7 @@ const ReadMoreButton = styled.a`
 // Sample blog posts data
 const featuredPost = {
   id: 1,
+  slug: 'mastering-calculus-guide',
   title: 'Mastering Calculus: A Step-by-Step Guide',
   excerpt: 'Calculus can be intimidating, but with the right approach, anyone can master it. This comprehensive guide breaks down key concepts into manageable steps, providing clear explanations and practical examples to help you build confidence and proficiency.',
   image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=2070&auto=format&fit=crop',
@@ -245,33 +247,36 @@ const featuredPost = {
 const blogPosts = [
   {
     id: 2,
-    title: 'Why Algebra is the Foundation of Higher Mathematics',
-    excerpt: 'Algebra provides the essential building blocks for advanced mathematical concepts. Learn why mastering algebra is crucial for success in all areas of mathematics.',
-    image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?q=80&w=2070&auto=format&fit=crop',
-    date: 'April 22, 2023',
-    author: 'Prof. Michael Chen',
+    slug: 'algebra-fundamentals',
+    title: 'Algebra Fundamentals: Building a Strong Foundation',
+    excerpt: 'Algebra is the gateway to higher mathematics. This article explores the fundamental concepts of algebra that every student should master to succeed in higher-level math courses.',
+    image: 'https://images.unsplash.com/photo-1596495578065-6e0763fa1178?q=80&w=2071&auto=format&fit=crop',
+    date: 'June 10, 2023',
+    author: 'Michael Chen',
     category: 'Algebra',
     readTime: '6 min read'
   },
   {
     id: 3,
-    title: 'Preparing for the SAT Math Section: Tips and Strategies',
-    excerpt: 'The SAT math section requires specific preparation strategies. Discover proven techniques to maximize your score and reduce test anxiety.',
-    image: 'https://images.unsplash.com/photo-1588075592446-265fd1e6e76f?q=80&w=2072&auto=format&fit=crop',
-    date: 'March 10, 2023',
-    author: 'Emma Williams',
-    category: 'Test Prep',
-    readTime: '5 min read'
+    slug: 'sat-math-preparation',
+    title: 'SAT Math Preparation: Strategies for Success',
+    excerpt: 'Preparing for the SAT math section requires a strategic approach. Learn effective techniques and practice methods to maximize your score on test day.',
+    image: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?q=80&w=2070&auto=format&fit=crop',
+    date: 'July 5, 2023',
+    author: 'Jessica Martinez',
+    category: 'Test Preparation',
+    readTime: '7 min read'
   },
   {
     id: 4,
-    title: 'Understanding Geometry Through Real-World Applications',
-    excerpt: 'Geometry becomes more intuitive when connected to everyday life. Explore how geometric principles appear in architecture, art, and nature.',
-    image: 'https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=2071&auto=format&fit=crop',
-    date: 'February 5, 2023',
-    author: 'Dr. Robert Lee',
+    slug: 'geometry-principles',
+    title: 'Geometry Principles: Understanding Shapes and Space',
+    excerpt: 'Geometry is all about understanding the properties and relationships of shapes and spaces. This article introduces key geometric concepts and their applications.',
+    image: 'https://images.unsplash.com/photo-1509228627152-72ae9ae6848d?q=80&w=2070&auto=format&fit=crop',
+    date: 'August 20, 2023',
+    author: 'Dr. Robert Kim',
     category: 'Geometry',
-    readTime: '7 min read'
+    readTime: '5 min read'
   }
 ];
 
@@ -307,13 +312,27 @@ const featuredVariants = {
   }
 };
 
-export const BlogPosts = () => {
+// Update the component interface
+interface BlogPostsProps {
+  showHeader?: boolean;
+}
+
+// Update the component definition
+export const BlogPosts = ({ showHeader = true }: BlogPostsProps) => {
+  // Add a handler for clicking on article links
+  const handleArticleClick = () => {
+    // Scroll to top to ensure the new article starts at the top of the page
+    window.scrollTo(0, 0);
+  };
+
   return (
     <Section id="blog" background="white">
-      <BlogHeader>
-        <h2>Latest Articles</h2>
-        <p>Explore our collection of educational resources, tips, and insights to enhance your mathematical journey</p>
-      </BlogHeader>
+      {showHeader && (
+        <BlogHeader>
+          <h2>Latest Articles</h2>
+          <p>Explore our collection of educational resources, tips, and insights to enhance your mathematical journey</p>
+        </BlogHeader>
+      )}
       
       <FeaturedPost
         as={motion.div}
@@ -348,7 +367,9 @@ export const BlogPosts = () => {
             <a href={`#blog-${featuredPost.id}`}>{featuredPost.title}</a>
           </h3>
           <p>{featuredPost.excerpt}</p>
-          <ReadMoreButton href={`#blog-${featuredPost.id}`}>Read Full Article</ReadMoreButton>
+          <ReadMoreButton to={`/blog/${featuredPost.slug}`} onClick={handleArticleClick}>
+            Read full article
+          </ReadMoreButton>
         </FeaturedContent>
       </FeaturedPost>
       
@@ -379,7 +400,9 @@ export const BlogPosts = () => {
                 <a href={`#blog-${post.id}`}>{post.title}</a>
               </BlogTitle>
               <BlogExcerpt>{post.excerpt}</BlogExcerpt>
-              <ReadMoreButton href={`#blog-${post.id}`}>Read More</ReadMoreButton>
+              <ReadMoreButton to={`/blog/${post.slug}`} onClick={handleArticleClick}>
+                Read full article
+              </ReadMoreButton>
             </BlogContent>
           </BlogCard>
         ))}

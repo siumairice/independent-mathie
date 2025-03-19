@@ -218,14 +218,14 @@ export const Hero = () => {
             animate="visible"
             variants={titleVariants}
           >
-            Unlock Your <span>Mathematical</span> Potential
+            Believe Your <span>Mathematical</span> Ability
           </HeroTitle>
           <HeroSubtitle
             initial="hidden"
             animate="visible"
             variants={subtitleVariants}
           >
-            Personalized mathematics tutoring for students of all levels. Build confidence, improve grades, and develop a deeper understanding of mathematics.
+            Accessible math for everyone: Build confidence, improve grades, and develop a deeper understanding of mathematics. 
           </HeroSubtitle>
           <ButtonGroup
             initial="hidden"

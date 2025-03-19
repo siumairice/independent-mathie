@@ -162,15 +162,6 @@ const testimonials = [
     rating: 5,
     subject: "Statistics",
   },
-  {
-    content:
-      "The test preparation strategies I learned were invaluable. Not only did my SAT math score improve by over 100 points, but I gained problem-solving skills that have helped me in other subjects too. Highly recommend for any student preparing for standardized tests.",
-    author: "David Wilson",
-    role: "High School Senior",
-    image: "https://randomuser.me/api/portraits/men/52.jpg",
-    rating: 4,
-    subject: "SAT Prep",
-  },
 ];
 
 const containerVariants = {
